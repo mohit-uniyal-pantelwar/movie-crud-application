@@ -5,9 +5,9 @@ import (
 	"log"
 	"movie-crud-application/src/internal/adapters/persistance"
 	"movie-crud-application/src/internal/config"
-	moviehandler "movie-crud-application/src/internal/interface/input/api/rest/handler"
+	"movie-crud-application/src/internal/interface/input/api/rest/handler"
 	"movie-crud-application/src/internal/interface/input/api/rest/routes"
-	movieservice "movie-crud-application/src/internal/usecase"
+	"movie-crud-application/src/internal/usecase"
 	"net/http"
 )
 
@@ -26,8 +26,8 @@ func main() {
 	fmt.Println("Connected to database")
 
 	movieRepo := persistance.NewMovieRepo(database)
-	movieService := movieservice.NewMovieService(movieRepo)
-	movieHandler := moviehandler.NewMovieHandler(movieService)
+	movieService := usecase.NewMovieService(movieRepo)
+	movieHandler := handler.NewMovieHandler(movieService)
 
 	router := routes.InitRoutes(&movieHandler)
 

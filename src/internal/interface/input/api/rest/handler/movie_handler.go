@@ -1,19 +1,19 @@
-package moviehandler
+package handler
 
 import (
 	"encoding/json"
-	movie "movie-crud-application/src/internal/core"
-	movieservice "movie-crud-application/src/internal/usecase"
+	models "movie-crud-application/src/internal/core"
+	"movie-crud-application/src/internal/usecase"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 )
 
 type MovieHandler struct {
-	movieService movieservice.MovieService
+	movieService usecase.MovieService
 }
 
-func NewMovieHandler(usecase movieservice.MovieService) MovieHandler {
+func NewMovieHandler(usecase usecase.MovieService) MovieHandler {
 	return MovieHandler{
 		movieService: usecase,
 	}
@@ -48,7 +48,7 @@ func (mh MovieHandler) GetMovieHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (mh MovieHandler) InsertMovieHandler(w http.ResponseWriter, r *http.Request) {
-	var movie movie.Movie
+	var movie models.Movie
 
 	if err := json.NewDecoder(r.Body).Decode(&movie); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -83,7 +83,7 @@ func (mh MovieHandler) DeleteMovieHandler(w http.ResponseWriter, r *http.Request
 }
 
 func (mh MovieHandler) UpdateMovieHandler(w http.ResponseWriter, r *http.Request) {
-	var movie movie.Movie
+	var movie models.Movie
 
 	if err := json.NewDecoder(r.Body).Decode(&movie); err != nil {
 		w.WriteHeader(http.StatusBadRequest)

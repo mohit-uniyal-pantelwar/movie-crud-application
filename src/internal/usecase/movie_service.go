@@ -1,4 +1,4 @@
-package movieservice
+package usecase
 
 import (
 	"errors"
