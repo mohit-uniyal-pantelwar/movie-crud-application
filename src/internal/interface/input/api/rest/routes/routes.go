@@ -1,14 +1,15 @@
 package routes
 
 import (
-	moviehandler "movie-crud-application/src/internal/interface/input/api/rest/handler"
+	"movie-crud-application/src/internal/interface/input/api/rest/handler"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 )
 
 func InitRoutes(
-	movieHandler *moviehandler.MovieHandler,
+	movieHandler *handler.MovieHandler,
+	userHandler *handler.UserHandler,
 ) http.Handler {
 	router := chi.NewRouter()
 

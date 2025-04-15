@@ -26,10 +26,15 @@ func main() {
 	fmt.Println("Connected to database")
 
 	movieRepo := persistance.NewMovieRepo(database)
-	movieService := usecase.NewMovieService(movieRepo)
-	movieHandler := handler.NewMovieHandler(movieService)
+	userRepo := persistance.NewUserRepo(database)
 
-	router := routes.InitRoutes(&movieHandler)
+	movieService := usecase.NewMovieService(movieRepo)
+	userService := usecase.NewUserService(userRepo)
+
+	movieHandler := handler.NewMovieHandler(movieService)
+	userHandler := handler.NewUserHandler(userService)
+
+	router := routes.InitRoutes(&movieHandler, &userHandler)
 
 	err = http.ListenAndServe(fmt.Sprintf(":%s", config.APP_PORT), router)
 	if err != nil {
