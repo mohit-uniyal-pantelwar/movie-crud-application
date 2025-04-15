@@ -21,5 +21,9 @@ func InitRoutes(
 		r.Put("/", movieHandler.UpdateMovieHandler)
 	})
 
+	router.Route("/user", func(r chi.Router) {
+		r.Post("/", userHandler.RegisterUserHandler)
+	})
+
 	return router
 }
