@@ -7,11 +7,15 @@ import (
 	"net/http"
 )
 
-type UserHandler struct {
-	userService usecase.UserService
+type UserHandlerImpl interface {
+	RegisterUserHandler(w http.ResponseWriter, r *http.Request)
 }
 
-func NewUserHandler(userService usecase.UserService) UserHandler {
+type UserHandler struct {
+	userService usecase.UserServiceImpl
+}
+
+func NewUserHandler(userService usecase.UserServiceImpl) UserHandlerImpl {
 	return UserHandler{
 		userService: userService,
 	}

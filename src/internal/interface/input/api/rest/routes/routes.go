@@ -9,7 +9,7 @@ import (
 
 func InitRoutes(
 	movieHandler *handler.MovieHandlerImpl,
-	userHandler *handler.UserHandler,
+	userHandler *handler.UserHandlerImpl,
 ) http.Handler {
 	router := chi.NewRouter()
 
@@ -22,7 +22,7 @@ func InitRoutes(
 	})
 
 	router.Route("/user", func(r chi.Router) {
-		r.Post("/", userHandler.RegisterUserHandler)
+		r.Post("/", (*userHandler).RegisterUserHandler)
 	})
 
 	return router

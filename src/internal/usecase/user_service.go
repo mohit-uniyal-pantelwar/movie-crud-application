@@ -6,11 +6,15 @@ import (
 	models "movie-crud-application/src/internal/core"
 )
 
-type UserService struct {
-	userRepo persistance.UserRepo
+type UserServiceImpl interface {
+	CreateUser(user models.User) (models.User, error)
 }
 
-func NewUserService(userRepo persistance.UserRepo) UserService {
+type UserService struct {
+	userRepo persistance.UserRepoImpl
+}
+
+func NewUserService(userRepo persistance.UserRepoImpl) UserServiceImpl {
 	return UserService{userRepo: userRepo}
 }
 

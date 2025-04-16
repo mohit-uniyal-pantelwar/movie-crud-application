@@ -5,11 +5,15 @@ import (
 	"movie-crud-application/src/pkg"
 )
 
+type UserRepoImpl interface {
+	CreateUser(user models.User) (models.User, error)
+}
+
 type UserRepo struct {
 	db *Database
 }
 
-func NewUserRepo(d *Database) UserRepo {
+func NewUserRepo(d *Database) UserRepoImpl {
 	return UserRepo{db: d}
 }
 
