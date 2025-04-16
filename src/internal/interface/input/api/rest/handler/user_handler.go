@@ -8,17 +8,14 @@ import (
 	"net/http"
 )
 
-type UserHandlerImpl interface {
-	RegisterUserHandler(w http.ResponseWriter, r *http.Request)
-	LoginHandler(w http.ResponseWriter, r *http.Request, config *config.Config)
-}
-
 type UserHandler struct {
+	config      *config.Config
 	userService usecase.UserServiceImpl
 }
 
-func NewUserHandler(userService usecase.UserServiceImpl) UserHandlerImpl {
+func NewUserHandler(config *config.Config, userService usecase.UserServiceImpl) UserHandler {
 	return UserHandler{
+		config: config,
 		userService: userService,
 	}
 }

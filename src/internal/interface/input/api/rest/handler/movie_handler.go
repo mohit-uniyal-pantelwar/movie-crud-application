@@ -9,19 +9,11 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-type MovieHandlerImpl interface {
-	GetMoviesHandler(w http.ResponseWriter, r *http.Request)
-	GetMovieHandler(w http.ResponseWriter, r *http.Request)
-	InsertMovieHandler(w http.ResponseWriter, r *http.Request)
-	DeleteMovieHandler(w http.ResponseWriter, r *http.Request)
-	UpdateMovieHandler(w http.ResponseWriter, r *http.Request)
-}
-
 type MovieHandler struct {
 	movieService usecase.MovieServiceImpl
 }
 
-func NewMovieHandler(usecase usecase.MovieServiceImpl) MovieHandlerImpl {
+func NewMovieHandler(usecase usecase.MovieServiceImpl) MovieHandler {
 	return MovieHandler{
 		movieService: usecase,
 	}

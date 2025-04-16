@@ -33,7 +33,7 @@ func main() {
 	userService := usecase.NewUserService(userRepo, sessionRepo)
 
 	movieHandler := handler.NewMovieHandler(movieService)
-	userHandler := handler.NewUserHandler(userService)
+	userHandler := handler.NewUserHandler(config, userService)
 
 	router := routes.InitRoutes(&movieHandler, &userHandler, config)
 
