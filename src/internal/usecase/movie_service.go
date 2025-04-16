@@ -6,11 +6,19 @@ import (
 	movie "movie-crud-application/src/internal/core"
 )
 
-type MovieService struct {
-	movieRepo persistance.MovieRepo
+type MovieServiceImpl interface {
+	GetAllMovies() ([]movie.Movie, error)
+	GetMovieById(id string) (movie.Movie, error)
+	InsertMovie(movie movie.Movie) (*movie.Movie, error)
+	DeleteMovieById(id string) error
+	UpdateMovie(movie movie.Movie) error
 }
 
-func NewMovieService(movieRepo persistance.MovieRepo) MovieService {
+type MovieService struct {
+	movieRepo persistance.MovieRepoImpl
+}
+
+func NewMovieService(movieRepo persistance.MovieRepoImpl) MovieServiceImpl {
 	return MovieService{movieRepo: movieRepo}
 }
 
