@@ -27,14 +27,15 @@ func main() {
 
 	movieRepo := persistance.NewMovieRepo(database)
 	userRepo := persistance.NewUserRepo(database)
+	sessionRepo := persistance.NewSessionRepo(database)
 
 	movieService := usecase.NewMovieService(movieRepo)
-	userService := usecase.NewUserService(userRepo)
+	userService := usecase.NewUserService(userRepo, sessionRepo)
 
 	movieHandler := handler.NewMovieHandler(movieService)
 	userHandler := handler.NewUserHandler(userService)
 
-	router := routes.InitRoutes(&movieHandler, &userHandler)
+	router := routes.InitRoutes(&movieHandler, &userHandler, config)
 
 	err = http.ListenAndServe(fmt.Sprintf(":%s", config.APP_PORT), router)
 	if err != nil {
