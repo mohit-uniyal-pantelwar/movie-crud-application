@@ -16,7 +16,6 @@ func NewDatabase(config *config.Config) (*Database, error) {
 
 	dataBaseUrl := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=%s", config.DB_USER, config.DB_PASSWORD, config.DB_HOST, config.DB_PORT, config.DB_NAME, config.DB_SSLMODE)
 
-	fmt.Println("DATABSE URL:", dataBaseUrl)
 	db, err := sql.Open("postgres", dataBaseUrl)
 	if err != nil {
 		return nil, err

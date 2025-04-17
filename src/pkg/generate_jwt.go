@@ -33,6 +33,25 @@ func GenerateJWT(uid int, jwtKey string) (string, time.Time, error) {
 
 }
 
+func ValidateJWT(tokenString string, jwtKey string) (*Claims, error) {
+
+	var claims Claims
+
+	token, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(jwtKey), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !token.Valid {
+		return nil, err
+	}
+
+	return &claims, nil
+}
+
 func GenerateSession(userId int) (models.Session, error) {
 	tokenId := uuid.New()
 	expiresAt := time.Now().Add(2 * time.Hour)

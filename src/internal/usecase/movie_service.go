@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"errors"
-	"movie-crud-application/src/internal/adapters/persistance"
+	models "movie-crud-application/src/internal/core"
 	movie "movie-crud-application/src/internal/core"
 )
 
@@ -15,10 +15,10 @@ type MovieServiceImpl interface {
 }
 
 type MovieService struct {
-	movieRepo persistance.MovieRepoImpl
+	movieRepo models.MovieRepoImpl
 }
 
-func NewMovieService(movieRepo persistance.MovieRepoImpl) MovieServiceImpl {
+func NewMovieService(movieRepo models.MovieRepoImpl) MovieServiceImpl {
 	return MovieService{movieRepo: movieRepo}
 }
 

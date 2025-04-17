@@ -30,12 +30,12 @@ func main() {
 	sessionRepo := persistance.NewSessionRepo(database)
 
 	movieService := usecase.NewMovieService(movieRepo)
-	userService := usecase.NewUserService(userRepo, sessionRepo)
+	userService := usecase.NewUserService(userRepo, sessionRepo, config.JWT_SECRET)
 
 	movieHandler := handler.NewMovieHandler(movieService)
 	userHandler := handler.NewUserHandler(config, userService)
 
-	router := routes.InitRoutes(&movieHandler, &userHandler, config)
+	router := routes.InitRoutes(&movieHandler, &userHandler, config.JWT_SECRET)
 
 	err = http.ListenAndServe(fmt.Sprintf(":%s", config.APP_PORT), router)
 	if err != nil {

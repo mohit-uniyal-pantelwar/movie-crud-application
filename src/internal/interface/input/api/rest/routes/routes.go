@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"movie-crud-application/src/internal/config"
 	"movie-crud-application/src/internal/interface/input/api/rest/handler"
+	"movie-crud-application/src/internal/interface/input/api/rest/middleware"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -11,7 +11,7 @@ import (
 func InitRoutes(
 	movieHandler *handler.MovieHandler,
 	userHandler *handler.UserHandler,
-	config *config.Config,
+	jwtKey string,
 ) http.Handler {
 	router := chi.NewRouter()
 
@@ -25,9 +25,15 @@ func InitRoutes(
 
 	router.Route("/auth", func(r chi.Router) {
 		r.Post("/register", userHandler.RegisterUserHandler)
-		r.Post("/login", func(w http.ResponseWriter, r *http.Request) {
-			userHandler.LoginHandler(w, r, config)
-		})
+		r.Post("/login", userHandler.LoginHandler)
+		r.Post("/refresh", userHandler.RefreshTokenHandler)
+	})
+
+	router.Route("/user", func(r chi.Router) {
+
+		r.Use(middleware.Authenticate(jwtKey))
+		r.Get("/profile", userHandler.GetProfileHandler)
+		r.Post("/logout", userHandler.LogoutHandler)
 	})
 
 	return router

@@ -45,6 +45,5 @@ func LoadConfig() (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
 	}
-	fmt.Println("config: ", config)
 	return &config, nil
 }

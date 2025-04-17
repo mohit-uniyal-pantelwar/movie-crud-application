@@ -6,19 +6,11 @@ import (
 	"time"
 )
 
-type MovieRepoImpl interface {
-	GetAllMovies() ([]models.Movie, error)
-	GetMovieById(id string) (models.Movie, error)
-	InsertMovie(movie models.Movie) (*models.Movie, error)
-	DeleteMovieById(id string) error
-	UpdateMovie(movie models.Movie) error
-}
-
 type MovieRepo struct {
 	db *Database
 }
 
-func NewMovieRepo(d *Database) MovieRepoImpl {
+func NewMovieRepo(d *Database) models.MovieRepoImpl {
 	return MovieRepo{db: d}
 }
 

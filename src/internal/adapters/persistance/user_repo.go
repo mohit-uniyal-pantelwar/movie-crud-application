@@ -5,16 +5,11 @@ import (
 	"movie-crud-application/src/pkg"
 )
 
-type UserRepoImpl interface {
-	CreateUser(user models.User) (models.User, error)
-	FindUserByUsername(username string) (models.User, error)
-}
-
 type UserRepo struct {
 	db *Database
 }
 
-func NewUserRepo(d *Database) UserRepoImpl {
+func NewUserRepo(d *Database) models.UserRepoImpl {
 	return UserRepo{db: d}
 }
 
@@ -47,4 +42,19 @@ func (ur UserRepo) FindUserByUsername(username string) (models.User, error) {
 	}
 
 	return user, nil
+}
+
+func (ur UserRepo) FindUserById(userId int) (models.User, error) {
+
+	var user models.User
+
+	query := "SELECT id, username, name, email FROM users WHERE id=$1"
+
+	err := ur.db.db.QueryRow(query, userId).Scan(&user.Id, &user.Username, &user.Name, &user.Email)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	return user, nil
+
 }
