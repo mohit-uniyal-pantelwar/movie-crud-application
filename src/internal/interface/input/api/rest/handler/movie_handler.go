@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	models "movie-crud-application/src/internal/core"
 	"movie-crud-application/src/internal/usecase"
+	"movie-crud-application/src/pkg"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -22,14 +23,10 @@ func NewMovieHandler(usecase usecase.MovieServiceImpl) MovieHandler {
 func (mh MovieHandler) GetMoviesHandler(w http.ResponseWriter, r *http.Request) {
 	movies, err := mh.movieService.GetAllMovies()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		pkg.SetReponse(w, http.StatusInternalServerError, map[string]string{}, err.Error(), map[string]string{})
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(movies)
+	pkg.SetReponse(w, http.StatusOK, map[string]string{"Content-Type": "application/json"}, "", movies)
 }
 
 func (mh MovieHandler) GetMovieHandler(w http.ResponseWriter, r *http.Request) {
@@ -37,35 +34,28 @@ func (mh MovieHandler) GetMovieHandler(w http.ResponseWriter, r *http.Request) {
 
 	movie, err := mh.movieService.GetMovieById(id)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		pkg.SetReponse(w, http.StatusInternalServerError, map[string]string{}, err.Error(), map[string]string{})
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(movie)
+	pkg.SetReponse(w, http.StatusOK, map[string]string{"Content-Type": "application/json"}, "", movie)
 }
 
 func (mh MovieHandler) InsertMovieHandler(w http.ResponseWriter, r *http.Request) {
 	var movie models.Movie
 
 	if err := json.NewDecoder(r.Body).Decode(&movie); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		pkg.SetReponse(w, http.StatusBadRequest, map[string]string{}, err.Error(), map[string]string{})
 		return
 	}
 
 	insertedMovie, err := mh.movieService.InsertMovie(movie)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		pkg.SetReponse(w, http.StatusInternalServerError, map[string]string{}, err.Error(), map[string]string{})
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(insertedMovie)
+	pkg.SetReponse(w, http.StatusOK, map[string]string{"Content-Type": "application/json"}, "", insertedMovie)
 }
 
 func (mh MovieHandler) DeleteMovieHandler(w http.ResponseWriter, r *http.Request) {
@@ -73,31 +63,26 @@ func (mh MovieHandler) DeleteMovieHandler(w http.ResponseWriter, r *http.Request
 
 	err := mh.movieService.DeleteMovieById(id)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		pkg.SetReponse(w, http.StatusInternalServerError, map[string]string{}, err.Error(), map[string]string{})
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Movie Deleted Successfully"))
+	pkg.SetReponse(w, http.StatusOK, map[string]string{}, "Movie Deleted Successfully", map[string]string{})
 }
 
 func (mh MovieHandler) UpdateMovieHandler(w http.ResponseWriter, r *http.Request) {
 	var movie models.Movie
 
 	if err := json.NewDecoder(r.Body).Decode(&movie); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		pkg.SetReponse(w, http.StatusBadRequest, map[string]string{}, err.Error(), map[string]string{})
 		return
 	}
 
 	err := mh.movieService.UpdateMovie(movie)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		pkg.SetReponse(w, http.StatusInternalServerError, map[string]string{}, err.Error(), map[string]string{})
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Movie Updated Successfully"))
+	pkg.SetReponse(w, http.StatusOK, map[string]string{}, "Movie Updated Successfully", map[string]string{})
 }

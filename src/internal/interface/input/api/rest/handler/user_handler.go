@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"movie-crud-application/src/internal/config"
 	models "movie-crud-application/src/internal/core"
+	"movie-crud-application/src/pkg"
 	"net/http"
 	"time"
 )
@@ -25,21 +26,25 @@ func (uh UserHandler) RegisterUserHandler(w http.ResponseWriter, r *http.Request
 	var user models.User
 
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		pkg.SetReponse(w, http.StatusBadRequest, map[string]string{}, err.Error(), map[string]string{})
 		return
 	}
 
 	insertedUser, err := uh.userService.CreateUser(user)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		pkg.SetReponse(w, http.StatusInternalServerError, map[string]string{}, err.Error(), map[string]string{})
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(insertedUser)
+	pkg.SetReponse(
+		w,
+		http.StatusOK,
+		map[string]string{
+			"Content-Type": "application/json",
+		},
+		"",
+		insertedUser,
+	)
 }
 
 func (uh UserHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -48,8 +53,7 @@ func (uh UserHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	var req models.User
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		pkg.SetReponse(w, http.StatusBadRequest, map[string]string{}, err.Error(), map[string]string{})
 		return
 	}
 
@@ -57,8 +61,7 @@ func (uh UserHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	loginResponse, err := uh.userService.LoginUser(req, uh.config)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		pkg.SetReponse(w, http.StatusInternalServerError, map[string]string{}, err.Error(), map[string]string{})
 		return
 	}
 
@@ -89,10 +92,18 @@ func (uh UserHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	//4. send the response back to client
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("x-user", loginResponse.FoundUser.Username)
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Logged in successfully"})
+	pkg.SetReponse(
+		w,
+		http.StatusOK,
+		map[string]string{
+			"Content-Type": "application/json",
+			"x-user":       loginResponse.FoundUser.Username,
+		},
+		"",
+		map[string]string{
+			"message": "Logged in successfully",
+		},
+	)
 }
 
 func (uh UserHandler) GetProfileHandler(w http.ResponseWriter, r *http.Request) {
@@ -100,8 +111,7 @@ func (uh UserHandler) GetProfileHandler(w http.ResponseWriter, r *http.Request) 
 
 	userId, ok := r.Context().Value("user").(int)
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(map[string]interface{}{"error": "user not found in context"})
+		pkg.SetReponse(w, http.StatusUnauthorized, map[string]string{}, "", map[string]interface{}{"error": "user not found in context"})
 		return
 	}
 
@@ -109,16 +119,21 @@ func (uh UserHandler) GetProfileHandler(w http.ResponseWriter, r *http.Request) 
 
 	user, err := uh.userService.GetUserById(userId)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		pkg.SetReponse(w, http.StatusInternalServerError, map[string]string{}, err.Error(), map[string]string{})
 		return
 	}
 
 	//3. return the response
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("x-user", user.Username)
-	json.NewEncoder(w).Encode(&user)
+	pkg.SetReponse(
+		w,
+		http.StatusOK,
+		map[string]string{
+			"Content-Type": "application/json",
+			"x-user":       user.Username,
+		},
+		"",
+		user,
+	)
 }
 
 func (uh UserHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
@@ -126,8 +141,7 @@ func (uh UserHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
 	userId, ok := r.Context().Value("user").(int)
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(map[string]interface{}{"error": "user not found in context"})
+		pkg.SetReponse(w, http.StatusUnauthorized, map[string]string{}, "", map[string]interface{}{"error": "user not found in context"})
 		return
 	}
 
@@ -135,8 +149,7 @@ func (uh UserHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := uh.userService.LogoutUser(userId)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		pkg.SetReponse(w, http.StatusInternalServerError, map[string]string{}, err.Error(), map[string]string{})
 		return
 	}
 
@@ -167,9 +180,17 @@ func (uh UserHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
 	//4. return the response
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "logged out successfully"})
+	pkg.SetReponse(
+		w,
+		http.StatusOK,
+		map[string]string{
+			"Content-Type": "application/json",
+		},
+		"",
+		map[string]string{
+			"message": "Logged out successfully",
+		},
+	)
 }
 
 func (uh UserHandler) RefreshTokenHandler(w http.ResponseWriter, r *http.Request) {
@@ -177,8 +198,7 @@ func (uh UserHandler) RefreshTokenHandler(w http.ResponseWriter, r *http.Request
 
 	cookie, err := r.Cookie("sessionCookie")
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("session cookie not valid"))
+		pkg.SetReponse(w, http.StatusUnauthorized, map[string]string{}, "", map[string]interface{}{"error": "user not found in context"})
 		return
 	}
 
@@ -186,8 +206,7 @@ func (uh UserHandler) RefreshTokenHandler(w http.ResponseWriter, r *http.Request
 
 	token, expirationTime, err := uh.userService.GetJWTFromSessionId(cookie.Value)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		pkg.SetReponse(w, http.StatusInternalServerError, map[string]string{}, err.Error(), map[string]string{})
 		return
 	}
 
@@ -207,7 +226,15 @@ func (uh UserHandler) RefreshTokenHandler(w http.ResponseWriter, r *http.Request
 
 	//4. return the response
 
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{"message": "token refreshed successfully"})
+	pkg.SetReponse(
+		w,
+		http.StatusOK,
+		map[string]string{
+			"Content-Type": "application/json",
+		},
+		"",
+		map[string]string{
+			"message": "token refreshed successfully",
+		},
+	)
 }
