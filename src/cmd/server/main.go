@@ -2,28 +2,37 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"movie-crud-application/src/internal/adapters/persistance"
 	"movie-crud-application/src/internal/config"
 	"movie-crud-application/src/internal/interface/input/api/rest/handler"
 	"movie-crud-application/src/internal/interface/input/api/rest/routes"
 	"movie-crud-application/src/internal/usecase"
 	"net/http"
+	"os"
+
+	"go.uber.org/zap"
 )
 
 func main() {
 
-	config, err := config.LoadConfig()
+	//setup logger
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
+	sugar := logger.Sugar()
+
+	config, err := config.LoadConfig(sugar)
 	if err != nil {
-		log.Fatalf("failed to load config: %v", err)
+		sugar.Errorf("failed to load config: %v", err)
+		os.Exit(1)
 	}
 
 	database, err := persistance.NewDatabase(config)
 	if err != nil {
-		log.Fatalf("failed to connect to database: %v", err)
+		sugar.Errorf("failed to connect to databas: %v", err)
+		os.Exit(1)
 	}
 
-	fmt.Println("Connected to database")
+	sugar.Info("Connected to database")
 
 	movieRepo := persistance.NewMovieRepo(database)
 	userRepo := persistance.NewUserRepo(database)
@@ -39,6 +48,7 @@ func main() {
 
 	err = http.ListenAndServe(fmt.Sprintf(":%s", config.APP_PORT), router)
 	if err != nil {
-		log.Fatalf("failed to start server: %v", err)
+		sugar.Errorf("failed to start server: %v", err)
+		os.Exit(1)
 	}
 }

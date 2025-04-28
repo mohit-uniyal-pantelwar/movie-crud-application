@@ -2,9 +2,9 @@ package config
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 )
 
 type Config struct {
@@ -19,7 +19,7 @@ type Config struct {
 	JWT_SECRET  string `mapstructure:"JWT_SECRET"`
 }
 
-func LoadConfig() (*Config, error) {
+func LoadConfig(sugar *zap.SugaredLogger) (*Config, error) {
 	config := Config{}
 
 	env := "local"
@@ -34,7 +34,7 @@ func LoadConfig() (*Config, error) {
 	err := viper.ReadInConfig()
 	if err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			log.Println("Config file not found. Using environment variables.")
+			sugar.Info("Config file not found. Using environment variables.")
 		} else {
 			return nil, fmt.Errorf("failed to read config file: %w", err)
 		}

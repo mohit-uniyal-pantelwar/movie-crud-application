@@ -49,3 +49,11 @@ type SessionRepoImpl interface {
 	GetSessionById(sessionId string) (Session, error)
 	DeleteSession(id int) error
 }
+
+// type status string
+
+// const (
+// 	Pending status = "pending"
+// 	Male    status = "M"
+// 	Female  status = "F"
+// )
