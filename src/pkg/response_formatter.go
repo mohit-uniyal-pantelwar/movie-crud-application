@@ -5,14 +5,25 @@ import (
 	"net/http"
 )
 
-func SetReponse(w http.ResponseWriter, statusCode int, headers map[string]string, writeMessage string, jsonData interface{}) {
-	w.WriteHeader(statusCode)
+type Response struct {
+	ResponseWriter http.ResponseWriter `json:"-"`
+	StatusCode     int                 `json:"statusCode"`
+	Headers        map[string]string   `json:"-"`
+	Message        string              `json:"message"`
+	Error          string              `json:"error"`
+	Data           interface{}         `json:"data"`
+}
 
-	for key, value := range headers {
-		w.Header().Set(key, value)
+func (r *Response) Set() {
+	r.ResponseWriter.WriteHeader(r.StatusCode)
+
+	for key, value := range r.Headers {
+		r.ResponseWriter.Header().Set(key, value)
 	}
 
-	w.Write([]byte(writeMessage))
-
-	json.NewEncoder(w).Encode(&jsonData)
+	err := json.NewEncoder(r.ResponseWriter).Encode(r)
+	if err != nil {
+		r.ResponseWriter.WriteHeader(http.StatusInternalServerError)
+		r.ResponseWriter.Write([]byte("Error encoding data"))
+	}
 }

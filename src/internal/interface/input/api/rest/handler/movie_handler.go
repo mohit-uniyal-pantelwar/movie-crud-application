@@ -23,10 +23,23 @@ func NewMovieHandler(usecase usecase.MovieServiceImpl) MovieHandler {
 func (mh MovieHandler) GetMoviesHandler(w http.ResponseWriter, r *http.Request) {
 	movies, err := mh.movieService.GetAllMovies()
 	if err != nil {
-		pkg.SetReponse(w, http.StatusInternalServerError, map[string]string{}, err.Error(), map[string]string{})
+		response := pkg.Response{
+			ResponseWriter: w,
+			StatusCode:     http.StatusInternalServerError,
+			Error:          err.Error(),
+		}
+		response.Set()
 		return
 	}
-	pkg.SetReponse(w, http.StatusOK, map[string]string{"Content-Type": "application/json"}, "", movies)
+
+	response := pkg.Response{
+		ResponseWriter: w,
+		StatusCode:     http.StatusOK,
+		Headers:        map[string]string{"Content-Type": "application/json"},
+		Data:           movies,
+	}
+	response.Set()
+
 }
 
 func (mh MovieHandler) GetMovieHandler(w http.ResponseWriter, r *http.Request) {
@@ -34,28 +47,57 @@ func (mh MovieHandler) GetMovieHandler(w http.ResponseWriter, r *http.Request) {
 
 	movie, err := mh.movieService.GetMovieById(id)
 	if err != nil {
-		pkg.SetReponse(w, http.StatusInternalServerError, map[string]string{}, err.Error(), map[string]string{})
+		response := pkg.Response{
+			ResponseWriter: w,
+			StatusCode:     http.StatusInternalServerError,
+			Error:          err.Error(),
+		}
+		response.Set()
 		return
 	}
 
-	pkg.SetReponse(w, http.StatusOK, map[string]string{"Content-Type": "application/json"}, "", movie)
+	response := pkg.Response{
+		ResponseWriter: w,
+		StatusCode:     http.StatusOK,
+		Headers:        map[string]string{"Content-Type": "application/json"},
+		Data:           movie,
+	}
+	response.Set()
+
 }
 
 func (mh MovieHandler) InsertMovieHandler(w http.ResponseWriter, r *http.Request) {
 	var movie models.Movie
 
 	if err := json.NewDecoder(r.Body).Decode(&movie); err != nil {
-		pkg.SetReponse(w, http.StatusBadRequest, map[string]string{}, err.Error(), map[string]string{})
+		response := pkg.Response{
+			ResponseWriter: w,
+			StatusCode:     http.StatusBadRequest,
+			Error:          err.Error(),
+		}
+		response.Set()
 		return
 	}
 
 	insertedMovie, err := mh.movieService.InsertMovie(movie)
 	if err != nil {
-		pkg.SetReponse(w, http.StatusInternalServerError, map[string]string{}, err.Error(), map[string]string{})
+		response := pkg.Response{
+			ResponseWriter: w,
+			StatusCode:     http.StatusInternalServerError,
+			Error:          err.Error(),
+		}
+		response.Set()
 		return
 	}
 
-	pkg.SetReponse(w, http.StatusOK, map[string]string{"Content-Type": "application/json"}, "", insertedMovie)
+	response := pkg.Response{
+		ResponseWriter: w,
+		StatusCode:     http.StatusOK,
+		Headers:        map[string]string{"Content-Type": "application/json"},
+		Data:           insertedMovie,
+	}
+	response.Set()
+
 }
 
 func (mh MovieHandler) DeleteMovieHandler(w http.ResponseWriter, r *http.Request) {
@@ -63,26 +105,55 @@ func (mh MovieHandler) DeleteMovieHandler(w http.ResponseWriter, r *http.Request
 
 	err := mh.movieService.DeleteMovieById(id)
 	if err != nil {
-		pkg.SetReponse(w, http.StatusInternalServerError, map[string]string{}, err.Error(), map[string]string{})
+		response := pkg.Response{
+			ResponseWriter: w,
+			StatusCode:     http.StatusInternalServerError,
+			Error:          err.Error(),
+		}
+		response.Set()
 		return
 	}
 
-	pkg.SetReponse(w, http.StatusOK, map[string]string{}, "Movie Deleted Successfully", map[string]string{})
+	response := pkg.Response{
+		ResponseWriter: w,
+		StatusCode:     http.StatusOK,
+		Headers:        map[string]string{"Content-Type": "application/json"},
+		Message:        "Movie Deleted Successfully",
+	}
+	response.Set()
+
 }
 
 func (mh MovieHandler) UpdateMovieHandler(w http.ResponseWriter, r *http.Request) {
 	var movie models.Movie
 
 	if err := json.NewDecoder(r.Body).Decode(&movie); err != nil {
-		pkg.SetReponse(w, http.StatusBadRequest, map[string]string{}, err.Error(), map[string]string{})
+		response := pkg.Response{
+			ResponseWriter: w,
+			StatusCode:     http.StatusBadRequest,
+			Error:          err.Error(),
+		}
+		response.Set()
 		return
 	}
 
 	err := mh.movieService.UpdateMovie(movie)
 	if err != nil {
-		pkg.SetReponse(w, http.StatusInternalServerError, map[string]string{}, err.Error(), map[string]string{})
+		response := pkg.Response{
+			ResponseWriter: w,
+			StatusCode:     http.StatusInternalServerError,
+			Error:          err.Error(),
+		}
+		response.Set()
 		return
 	}
 
-	pkg.SetReponse(w, http.StatusOK, map[string]string{}, "Movie Updated Successfully", map[string]string{})
+	response := pkg.Response{
+		ResponseWriter: w,
+		StatusCode:     http.StatusOK,
+		Headers:        map[string]string{"Content-Type": "application/json"},
+		Message:        "Movie Updated Successfully",
+	}
+	response.Set()
+
 }

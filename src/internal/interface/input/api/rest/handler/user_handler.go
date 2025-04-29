@@ -26,25 +26,35 @@ func (uh UserHandler) RegisterUserHandler(w http.ResponseWriter, r *http.Request
 	var user models.User
 
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		pkg.SetReponse(w, http.StatusBadRequest, map[string]string{}, err.Error(), map[string]string{})
+		response := pkg.Response{
+			ResponseWriter: w,
+			StatusCode:     http.StatusBadRequest,
+			Error:          err.Error(),
+		}
+		response.Set()
 		return
 	}
 
 	insertedUser, err := uh.userService.CreateUser(user)
 	if err != nil {
-		pkg.SetReponse(w, http.StatusInternalServerError, map[string]string{}, err.Error(), map[string]string{})
+		response := pkg.Response{
+			ResponseWriter: w,
+			StatusCode:     http.StatusInternalServerError,
+			Error:          err.Error(),
+		}
+		response.Set()
 		return
 	}
 
-	pkg.SetReponse(
-		w,
-		http.StatusOK,
-		map[string]string{
+	response := pkg.Response{
+		ResponseWriter: w,
+		StatusCode:     http.StatusOK,
+		Headers: map[string]string{
 			"Content-Type": "application/json",
 		},
-		"",
-		insertedUser,
-	)
+		Data: insertedUser,
+	}
+	response.Set()
 }
 
 func (uh UserHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -53,7 +63,12 @@ func (uh UserHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	var req models.User
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		pkg.SetReponse(w, http.StatusBadRequest, map[string]string{}, err.Error(), map[string]string{})
+		response := pkg.Response{
+			ResponseWriter: w,
+			StatusCode:     http.StatusBadRequest,
+			Error:          err.Error(),
+		}
+		response.Set()
 		return
 	}
 
@@ -61,7 +76,12 @@ func (uh UserHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	loginResponse, err := uh.userService.LoginUser(req, uh.config)
 	if err != nil {
-		pkg.SetReponse(w, http.StatusInternalServerError, map[string]string{}, err.Error(), map[string]string{})
+		response := pkg.Response{
+			ResponseWriter: w,
+			StatusCode:     http.StatusInternalServerError,
+			Error:          err.Error(),
+		}
+		response.Set()
 		return
 	}
 
@@ -92,18 +112,16 @@ func (uh UserHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	//4. send the response back to client
 
-	pkg.SetReponse(
-		w,
-		http.StatusOK,
-		map[string]string{
+	response := pkg.Response{
+		ResponseWriter: w,
+		StatusCode:     http.StatusOK,
+		Headers: map[string]string{
 			"Content-Type": "application/json",
 			"x-user":       loginResponse.FoundUser.Username,
 		},
-		"",
-		map[string]string{
-			"message": "Logged in successfully",
-		},
-	)
+		Message: "Logged in successfully",
+	}
+	response.Set()
 }
 
 func (uh UserHandler) GetProfileHandler(w http.ResponseWriter, r *http.Request) {
@@ -111,7 +129,12 @@ func (uh UserHandler) GetProfileHandler(w http.ResponseWriter, r *http.Request) 
 
 	userId, ok := r.Context().Value("user").(int)
 	if !ok {
-		pkg.SetReponse(w, http.StatusUnauthorized, map[string]string{}, "", map[string]interface{}{"error": "user not found in context"})
+		response := pkg.Response{
+			ResponseWriter: w,
+			StatusCode:     http.StatusUnauthorized,
+			Error:          "user not found in context",
+		}
+		response.Set()
 		return
 	}
 
@@ -119,21 +142,28 @@ func (uh UserHandler) GetProfileHandler(w http.ResponseWriter, r *http.Request) 
 
 	user, err := uh.userService.GetUserById(userId)
 	if err != nil {
-		pkg.SetReponse(w, http.StatusInternalServerError, map[string]string{}, err.Error(), map[string]string{})
+		response := pkg.Response{
+			ResponseWriter: w,
+			StatusCode:     http.StatusInternalServerError,
+			Error:          err.Error(),
+		}
+		response.Set()
 		return
 	}
 
 	//3. return the response
-	pkg.SetReponse(
-		w,
-		http.StatusOK,
-		map[string]string{
+
+	response := pkg.Response{
+		ResponseWriter: w,
+		StatusCode:     http.StatusOK,
+		Headers: map[string]string{
 			"Content-Type": "application/json",
 			"x-user":       user.Username,
 		},
-		"",
-		user,
-	)
+		Data: user,
+	}
+	response.Set()
+
 }
 
 func (uh UserHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
@@ -141,7 +171,12 @@ func (uh UserHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
 	userId, ok := r.Context().Value("user").(int)
 	if !ok {
-		pkg.SetReponse(w, http.StatusUnauthorized, map[string]string{}, "", map[string]interface{}{"error": "user not found in context"})
+		response := pkg.Response{
+			ResponseWriter: w,
+			StatusCode:     http.StatusUnauthorized,
+			Error:          "user not found in context",
+		}
+		response.Set()
 		return
 	}
 
@@ -149,7 +184,12 @@ func (uh UserHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := uh.userService.LogoutUser(userId)
 	if err != nil {
-		pkg.SetReponse(w, http.StatusInternalServerError, map[string]string{}, err.Error(), map[string]string{})
+		response := pkg.Response{
+			ResponseWriter: w,
+			StatusCode:     http.StatusInternalServerError,
+			Error:          err.Error(),
+		}
+		response.Set()
 		return
 	}
 
@@ -180,17 +220,15 @@ func (uh UserHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
 	//4. return the response
 
-	pkg.SetReponse(
-		w,
-		http.StatusOK,
-		map[string]string{
+	response := pkg.Response{
+		ResponseWriter: w,
+		StatusCode:     http.StatusOK,
+		Headers: map[string]string{
 			"Content-Type": "application/json",
 		},
-		"",
-		map[string]string{
-			"message": "Logged out successfully",
-		},
-	)
+		Message: "Logged out successfully",
+	}
+	response.Set()
 }
 
 func (uh UserHandler) RefreshTokenHandler(w http.ResponseWriter, r *http.Request) {
@@ -198,7 +236,12 @@ func (uh UserHandler) RefreshTokenHandler(w http.ResponseWriter, r *http.Request
 
 	cookie, err := r.Cookie("sessionCookie")
 	if err != nil {
-		pkg.SetReponse(w, http.StatusUnauthorized, map[string]string{}, "", map[string]interface{}{"error": "user not found in context"})
+		response := pkg.Response{
+			ResponseWriter: w,
+			StatusCode:     http.StatusUnauthorized,
+			Error:          "user not found in context",
+		}
+		response.Set()
 		return
 	}
 
@@ -206,7 +249,12 @@ func (uh UserHandler) RefreshTokenHandler(w http.ResponseWriter, r *http.Request
 
 	token, expirationTime, err := uh.userService.GetJWTFromSessionId(cookie.Value)
 	if err != nil {
-		pkg.SetReponse(w, http.StatusInternalServerError, map[string]string{}, err.Error(), map[string]string{})
+		response := pkg.Response{
+			ResponseWriter: w,
+			StatusCode:     http.StatusInternalServerError,
+			Error:          err.Error(),
+		}
+		response.Set()
 		return
 	}
 
@@ -226,15 +274,13 @@ func (uh UserHandler) RefreshTokenHandler(w http.ResponseWriter, r *http.Request
 
 	//4. return the response
 
-	pkg.SetReponse(
-		w,
-		http.StatusOK,
-		map[string]string{
+	response := pkg.Response{
+		ResponseWriter: w,
+		StatusCode:     http.StatusOK,
+		Headers: map[string]string{
 			"Content-Type": "application/json",
 		},
-		"",
-		map[string]string{
-			"message": "token refreshed successfully",
-		},
-	)
+		Message: "token refreshed successfully",
+	}
+	response.Set()
 }

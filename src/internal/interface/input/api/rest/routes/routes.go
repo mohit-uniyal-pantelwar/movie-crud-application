@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 )
 
 func InitRoutes(
@@ -14,6 +15,14 @@ func InitRoutes(
 	jwtKey string,
 ) http.Handler {
 	router := chi.NewRouter()
+
+	router.Use(cors.Handler(cors.Options{
+		AllowedOrigins: []string{"http://localhost:3000"},
+		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		AllowCredentials: true,
+	}))
 
 	router.Route("/movies", func(r chi.Router) {
 		r.Get("/", movieHandler.GetMoviesHandler)
