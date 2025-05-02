@@ -43,8 +43,9 @@ func main() {
 
 	movieHandler := handler.NewMovieHandler(movieService)
 	userHandler := handler.NewUserHandler(config, userService)
+	socketHandler := handler.NewSocketHandler(sugar)
 
-	router := routes.InitRoutes(&movieHandler, &userHandler, config.JWT_SECRET)
+	router := routes.InitRoutes(&movieHandler, &userHandler, &socketHandler, config.JWT_SECRET)
 
 	err = http.ListenAndServe(fmt.Sprintf(":%s", config.APP_PORT), router)
 	if err != nil {

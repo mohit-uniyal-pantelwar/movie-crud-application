@@ -12,6 +12,7 @@ import (
 func InitRoutes(
 	movieHandler *handler.MovieHandler,
 	userHandler *handler.UserHandler,
+	socketHandler *handler.SocketHandler,
 	jwtKey string,
 ) http.Handler {
 	router := chi.NewRouter()
@@ -44,6 +45,9 @@ func InitRoutes(
 		r.Get("/profile", userHandler.GetProfileHandler)
 		r.Post("/logout", userHandler.LogoutHandler)
 	})
+
+	router.Get("/ws", socketHandler.UpgradeConnctionHandler)
+	// https://medium.com/wisemonks/implementing-websockets-in-golang-d3e8e219733b
 
 	return router
 }
