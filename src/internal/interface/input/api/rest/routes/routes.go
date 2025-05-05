@@ -48,6 +48,8 @@ func InitRoutes(
 
 	router.Get("/ws", socketHandler.UpgradeConnctionHandler)
 	// https://medium.com/wisemonks/implementing-websockets-in-golang-d3e8e219733b
+	//redis
+	//https://medium.com/better-programming/internals-workings-of-redis-718f5871be84
 
 	return router
 }
